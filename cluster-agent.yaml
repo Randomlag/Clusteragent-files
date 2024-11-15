@@ -1,0 +1,34 @@
+apiVersion: cluster.appdynamics.com/v1alpha1
+kind: Clusteragent
+metadata:
+  name: k8s-cluster-agent
+  namespace: appdynamics
+spec:
+  appName: "HDFC-PROD"
+  controllerUrl: "https://hdfclife-prod.saas.appdynamics.com:443"
+  account: "hdfclife-prod"
+  # docker image info
+  image: "<your-docker-registry>/appdynamics/cluster-agent:tag"
+  imagePullSecret: regcred
+  nsToMonitorRegex: "appdynamics|hdfc-uat|ingress|kube-system"
+  serviceAccountName: appdynamics-cluster-agent
+  instrumentationMethod: Env 
+  nsToInstrumentRegex: hdfc-prod
+  defaultAppName: CCM-Prod
+  #defaultEnv: JAVA_TOOL_OPTIONS	
+  instrumentationRules:
+  - language: java
+    runAsUser: 1001
+    runAsGroup: 1001
+    imageInfo:
+        image: "<your-docker-registry>/appdynamics/java-agent:tag"
+        agentMountPath: /opt/appdynamics
+        imagePullPolicy: Always
+  ### Uncomment the following line if you need pull secret
+  #imagePullSecret: "<your-docker-pull-secret-name>"
+  ### Uncomment the following line if you need to enable the profiling
+  #pprofEnabled: true
+  #pprofPort: 9991
+env:
+ - name: JAVA_TOOL_OPTIONS
+   value: "-Dappdynamics.http.proxyHost=172.26.54.153 -Dappdynamics.http.proxyPort=80"
